@@ -1,6 +1,9 @@
-﻿using InlämningUppgift2API.Data.DTOs.CategoryDTOs;
+﻿using InlämningUppgift2API.Data;
+using InlämningUppgift2API.Data.DTOs.CategoryDTOs;
 using InlämningUppgift2API.Data.Entites;
 using InlämningUppgift2API.Data.interfaces;
+using InlämningUppgift2API.Data.Repos;
+using Microsoft.EntityFrameworkCore;
 
 namespace InlämningUppgift2API.Data.Repos
 {
@@ -11,27 +14,24 @@ namespace InlämningUppgift2API.Data.Repos
         {
             _context = context;
         }
-        public int CreateCategory(CreateCategoryDTO dto)
+
+        public int Add(Category category)
         {
-            var category = new Category
-            {
-                CategoryName = dto.CategoryName
-            };
-            _context.Categories.Add(category);
+           _context.Categories.Add(category);   
             _context.SaveChanges();
-            return category.CategoryId;
-
+                return category.CategoryId; 
         }
-        public List<GetCategoryDTO> GetCategories()
+
+        public bool ExistByName(string name)
         {
-            return _context.Categories
-                .Select(c => new GetCategoryDTO()
-                {
-                    CategoryId = c.CategoryId,
-                    CategoryName = c.CategoryName
-
-                }).ToList();
+            return _context.Categories.Any(c => c.CategoryName == name);    
         }
-              
+
+        public List<Category> GetAll()
+        {
+            return _context.Categories.ToList();
+        }
     }
 }
+
+

@@ -1,4 +1,5 @@
-﻿using InlämningUppgift2API.Data.DTOs.UserDTOs;
+﻿using InlämningUppgift2API.Core.Inteface;
+using InlämningUppgift2API.Data.DTOs.UserDTOs;
 using InlämningUppgift2API.Data.interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,32 +11,36 @@ namespace InlämningUppgift2API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepo _repo;
+    private readonly IUserService _service;
 
-        public UserController(IUserRepo repo)
+        public UserController(IUserService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
         [HttpPost("register")]
 
         public IActionResult Register(RegisterUserDTO dto)
         {
-            var newUserId = _repo.Register(dto);
-            return Ok(new { userId = newUserId });
+            var userId = _service.Register(dto);
+            if (userId == 0)
+            {
+                return BadRequest("This Email Adress is aready exist.");
+            }
+            return Ok(new { userId = userId });
         }
 
         [HttpGet]
         public IActionResult GetAllUsers()
         {
-            var user = _repo.GetAllUsers();
+            var user = _service.GetAllUsers();
             return Ok(user);
         }
 
         [HttpPost("login")]
         public IActionResult Login(LoginUserDTO dto)
         {
-            var userId = _repo.Login(dto);
+            var userId = _service.Login(dto);
 
             if (userId == 0)
 
@@ -48,9 +53,9 @@ namespace InlämningUppgift2API.Controllers
 
         public IActionResult UpdateUser(UpdateUserDTO dto, int id)
         {
-            var updatedUserID = _repo.Update(dto, id);
+            var updatedUserID = _service.UpdateUser(id, dto);
 
-            if (updatedUserID == 0)
+            if (!updatedUserID )
             {
                 return NotFound(" User not found.");
             }
@@ -65,7 +70,7 @@ namespace InlämningUppgift2API.Controllers
         [HttpDelete("delete/{id}")]
         public IActionResult DeleteUser(int id)
         {
-            var deleted = _repo.Delete(id);
+            var deleted = _service.DeleteUser(id);
             if (!deleted)
             
                 return NotFound("User Not Found");

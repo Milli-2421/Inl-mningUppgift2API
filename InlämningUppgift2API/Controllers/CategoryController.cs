@@ -1,4 +1,5 @@
-﻿using InlämningUppgift2API.Data.DTOs.CategoryDTOs;
+﻿using InlämningUppgift2API.Core.Inteface;
+using InlämningUppgift2API.Data.DTOs.CategoryDTOs;
 using InlämningUppgift2API.Data.interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,29 +10,31 @@ namespace InlämningUppgift2API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepo _categoryRepo;
+        private readonly ICategoryService _service;
 
-        public CategoryController(ICategoryRepo categoryRepo)
+        public CategoryController(ICategoryService service)
         {
-            _categoryRepo = categoryRepo;
+            _service = service;
         }
+
+      
 
         [HttpPost("CreateCategory")]
         public IActionResult CreateCategory(CreateCategoryDTO dto)
         {
-            var categoryId = _categoryRepo.CreateCategory(dto);
-            if (categoryId == null)
+            var id = _service.CreateCategory(dto);
+            if (id == null)
             {
                 return BadRequest("Category name is required. please enter category name ");
             }
-            return Ok(categoryId);
+            return Ok( new { categoryId = id});
         }
 
         [HttpGet]
         public IActionResult GetCategory()
         { 
-            return Ok(_categoryRepo.GetCategories());
-        
+            return Ok (_service.GetCategories());
+
         }               
     }
 }

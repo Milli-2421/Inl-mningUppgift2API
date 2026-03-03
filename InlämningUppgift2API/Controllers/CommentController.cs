@@ -1,4 +1,5 @@
-﻿using InlämningUppgift2API.Data.DTOs.CommentsDTOs;
+﻿using InlämningUppgift2API.Core.Inteface;
+using InlämningUppgift2API.Data.DTOs.CommentsDTOs;
 using InlämningUppgift2API.Data.interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,21 +10,22 @@ namespace InlämningUppgift2API.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        private readonly ICommentRepo _commentRepo;
 
-        public CommentController(ICommentRepo commentRepo)
+        private readonly ICommentService _Service;
+
+        public CommentController(ICommentService service)
         {
-            _commentRepo = commentRepo;
+            _Service = service;
         }
 
         [HttpPost("CreateComment")]
         public IActionResult CreateComment(CreateCommentDTO dto)
         {
-            var commentId = _commentRepo.CreateComment(dto);
+            var commentId = _Service.CreateComment(dto);
 
             if (commentId == -1)
             {
-                return BadRequest("You can't comment o your post");
+                return BadRequest("You can't comment on your post");
             }
 
             if (commentId == 0)
@@ -37,7 +39,7 @@ namespace InlämningUppgift2API.Controllers
         [HttpGet("GetCommentsByPostId/{postId}")]
         public IActionResult GetCommentsByPostId(int postId)
         {
-            var comments = _commentRepo.GetCommentsByPostId(postId);
+            var comments = _Service.GetCommentsByPostId(postId);
             if (comments == null || comments.Count == 0)
             {
                 return NotFound("No comments found for this post.");
@@ -49,7 +51,7 @@ namespace InlämningUppgift2API.Controllers
 
         public IActionResult GetCommentsByUserId(int userId)
         {
-            var comments = _commentRepo.GetCommentsByUserId(userId);
+            var comments = _Service.GetCommentsByUserId(userId);
             if (comments == null || comments.Count == 0)
             {
                 return NotFound("No comments found for this user.");
@@ -62,7 +64,7 @@ namespace InlämningUppgift2API.Controllers
 
         public IActionResult UpdateComment(int commentId, UpadateCommentDTO dto)
         {
-            var updated = _commentRepo.UpdateComment(commentId, dto);
+            var updated = _Service.UpdateComment(commentId, dto);
             if (!updated)
             {
                 return BadRequest("Failed to update comment. Check if the comment exists and the user is correct.");
@@ -76,7 +78,7 @@ namespace InlämningUppgift2API.Controllers
 
         public IActionResult DeleteComment(int commentId, int userId)
         {
-            var deleted = _commentRepo.DeleteComment(commentId, userId);
+            var deleted = _Service.DeleteComment(commentId, userId);
             if (!deleted)
             {
                 return BadRequest("Failed to delete comment. Check if the comment exists and the user is correct.");

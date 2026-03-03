@@ -5,14 +5,13 @@ namespace InlämningUppgift2API.Data.interfaces
 {
     public interface IUserRepo
     {
-       int Register(RegisterUserDTO dto);
-
-       int Login(LoginUserDTO dto);
-
-       int Update(UpdateUserDTO dto, int id);
-        bool Delete(int id);
-
-        public List<GettAllUsersDTO> GetAllUsers();
-      
+             void Add(User user);
+             User? GetById(int id);
+             User? GetByEmail(string email);
+             List<User> GetAll();
+             void Update();
+             void Delete(User user);
+             bool UserExistsByEmail(string email);
+             bool UserExistById (int id);
     }
 }

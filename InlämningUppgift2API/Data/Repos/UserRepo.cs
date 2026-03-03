@@ -2,6 +2,7 @@
 using InlämningUppgift2API.Data.DTOs.UserDTOs;
 using InlämningUppgift2API.Data.Entites;
 using InlämningUppgift2API.Data.interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace InlämningUppgift2API.Data.Repos
 {
@@ -15,80 +16,49 @@ namespace InlämningUppgift2API.Data.Repos
             _context = context;
         }
 
-
-        public int Register(RegisterUserDTO dto)
+        public void Add(User user)
         {
-            var user = new User
-            {
-                UserName = dto.UserName,
-                Email = dto.Email,
-                Password = dto.Password
-            };
             _context.Users.Add(user);
             _context.SaveChanges();
-            return user.UserId;
-
         }
 
-        public int Login(LoginUserDTO dto)
+        public void Update()
         {
-            var user = _context.Users.FirstOrDefault(u => 
-            u.UserName == dto.UserName && u.Password == dto.Password);
-            if (user == null)
-            {
-                return 0;
-            }
-            return user.UserId;
-        }
-
-        public int Update(UpdateUserDTO dto, int id)
-        {
-            var user = _context.Users.FirstOrDefault(u => 
-                            u.UserId == id);
-            if (user == null) 
-            { 
-              return 0;
-
-            }
-                user.Email = dto.Email;
-                user.Password = dto.Password;
-                _context.SaveChanges();
-                return user.UserId;    
-            
-        }
-
-        public bool Delete(int id)
-        {
-            var user = _context.Users.FirstOrDefault(u =>
-                        u.UserId == id);
-            if(user == null)
-            {  return false; }
-
-            var comments= _context.Comments.Where(c => c.UserId == id).ToList();
-            if (comments.Any()) 
-            _context.Comments.RemoveRange(comments);
-
-
-            var posts = _context.Posts.Where(p => p.UserId==id).ToList();
-            if (posts.Any())
-                _context.Posts.RemoveRange(posts);
-
-
-            _context.Users.Remove(user);
             _context.SaveChanges();
-            return true;
         }
 
-        public List<GettAllUsersDTO> GetAllUsers()
+        public void Delete(User user)
         {
-            return _context.Users
-                 .Select(u => new GettAllUsersDTO
-                 {
-                     UserId = u.UserId,
-                     UserName = u.UserName,
-                     Email = u.Email,
-                 }).ToList();
-                 
+           _context.Users.Remove(user);
+            _context.SaveChanges(); 
+        }
+
+        public List<User> GetAll()
+        {
+            return _context.Users.ToList();
+        }
+
+        public User? GetByEmail(string email)
+        {
+            return _context.Users.FirstOrDefault(u => u.Email == email);    
+        }
+
+        public User? GetById(int id)
+        {
+          return _context.Users.FirstOrDefault(u => u.UserId == id);
+        }
+
+    
+
+        public bool UserExistById(int id)
+        {
+            return _context.Users.Any(u => u.UserId == id); 
+        }
+
+        public bool UserExistsByEmail(string email)
+        {
+            return _context.Users.Any(u => u.Email == email);   
         }
     }
 }
+
